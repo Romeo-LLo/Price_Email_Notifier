@@ -16,9 +16,9 @@ sender = os.getenv("sender_email")
 receiver = os.getenv("receiver_email")
 
 
-def check_moisture():
+def price_check():
     info_file = 'lastest_price.json'
-    chrome_options = webdriver.ChromeOptions()
+    chrome_options = webdriver.Options()
     chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--disable-dev-shm-usage")
@@ -106,4 +106,4 @@ def send_mail_price(last_time, last_price, current_time, current_price):
         
         
 if __name__ == '__main__':
-    check_moisture()
+    price_check()
