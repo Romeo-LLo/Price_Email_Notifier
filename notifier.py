@@ -6,8 +6,8 @@ from dotenv import load_dotenv
 import os 
 from datetime import datetime
 import json
-from email.message import EmailMessage
 from email.mime.text import MIMEText
+from selenium.webdriver.chrome.options import Options
 
 
 load_dotenv()
@@ -18,7 +18,7 @@ receiver = os.getenv("receiver_email")
 
 def price_check():
     info_file = 'lastest_price.json'
-    chrome_options = webdriver.Options()
+    chrome_options = Options()
     chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--disable-dev-shm-usage")
@@ -31,6 +31,7 @@ def price_check():
     soup = bs(page, "html.parser")
     price = soup.find("div", {"class": "price price_redesign"})
     current_price = price.text
+    print('Current price : ', price)
     current_time = datetime.now()
     current_time = current_time.strftime("%Y/%m/%d")
     driver.close()
