@@ -18,10 +18,14 @@ receiver = os.getenv("receiver_email")
 
 def check_moisture():
     info_file = 'lastest_price.json'
-        
-    url = "https://www.boots.com/clinique-moisture-surge-100h-auto-replenishing-hydrator-50ml-10292729?cm_mmc=bmm-buk-google-ppc-_-PLAs_HeroCompare-_-Beauty_Premium_Clinique-_-UK_Smart_Shopping_Beauty_Premium_Clinique&gclid=Cj0KCQjw852XBhC6ARIsAJsFPN2fEcoTeY-lAdI7jLEOkEMdJxgEv8iEXUnzTX7tNE-m-RZC4xHogP0aAimhEALw_wcB&gclsrc=aw.ds"
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--no-sandbox")
+    driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chrome_options)
 
-    driver = webdriver.Chrome()
+    url = "https://www.boots.com/clinique-moisture-surge-100h-auto-replenishing-hydrator-50ml-10292729?cm_mmc=bmm-buk-google-ppc-_-PLAs_HeroCompare-_-Beauty_Premium_Clinique-_-UK_Smart_Shopping_Beauty_Premium_Clinique&gclid=Cj0KCQjw852XBhC6ARIsAJsFPN2fEcoTeY-lAdI7jLEOkEMdJxgEv8iEXUnzTX7tNE-m-RZC4xHogP0aAimhEALw_wcB&gclsrc=aw.ds"
     driver.get(url)
     page = driver.page_source
     soup = bs(page, "html.parser")
