@@ -8,16 +8,17 @@ from datetime import datetime
 import json
 from email.mime.text import MIMEText
 from selenium.webdriver.chrome.options import Options
-
+from dbmanager import DatabaseManager
 
 load_dotenv()
 pwd = os.getenv("pwd")
 sender = os.getenv("sender_email")
 receiver = os.getenv("receiver_email")
+mongodb_uri = os.getenv('MONGODB_URI')
+
 
 
 def price_check():
-    info_file = 'lastest_price.json'
     chrome_options = Options()
     chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
     chrome_options.add_argument("--headless")
@@ -31,45 +32,44 @@ def price_check():
     soup = bs(page, "html.parser")
     price = soup.find("div", {"class": "price price_redesign"})
     current_price = price.text
-    print('Current price : ', price)
+    print('Current price : ', current_price)
     current_time = datetime.now()
     current_time = current_time.strftime("%Y/%m/%d")
     driver.close()
     
-
-    if os.path.exists(info_file):
+    dbmanager = DatabaseManager(mongodb_uri)
         
-        with open(info_file, 'r') as json_file:
-            info_dict = json.load(json_file)
-            last_time = info_dict['date']
-            last_price = info_dict['price']
-            
-        if last_price != current_price:
-            info_dict = {
-                'date': current_time,
-                'price': current_price
-            }
-            with open(info_file, 'w') as json_file:
-                json.dump(info_dict, json_file)
-            
-            send_mail_price(last_time, last_price, current_time, current_price)
-            print('Price updated, email sent!')
-        else:
-            print('Price unchanged')
-            
-            
-    else:
+    info_count = dbmanager.count_price_info_mongoDB()
+
+    if info_count == 0:
         last_time = 'None'
         last_price = 'None'
         info_dict = {
             'date': current_time,
             'price': current_price
         }
-        with open(info_file, 'w') as json_file:
-            json.dump(info_dict, json_file)
-            
+        dbmanager.insert_price_info_mongoDB(info_dict)
         send_mail_price(last_time, last_price, current_time, current_price)
-        print('Price recored, email sent!')
+        print('Price recored in DB, email sent!')
+        
+    else:
+        info_dict = dbmanager.extract_price_info_mongoDB()
+        last_time = info_dict['date']
+        last_price = info_dict['price']
+    
+        if last_price != current_price:
+            info_dict = {
+                'date': current_time,
+                'price': current_price
+            }
+            dbmanager.insert_price_info_mongoDB(info_dict)
+            send_mail_price(last_time, last_price, current_time, current_price)
+            print('Price updated in DB, email sent!')
+        else:
+            print('Price unchanged')
+            
+            
+
 
     
     
@@ -106,5 +106,8 @@ def send_mail_price(last_time, last_price, current_time, current_price):
         server.sendmail(sender_email, receiver_email, msg.as_string())
         
         
+        
+
+    
 if __name__ == '__main__':
     price_check()
