@@ -5,7 +5,6 @@ import ssl
 from dotenv import load_dotenv
 import os 
 from datetime import datetime
-import json
 from email.mime.text import MIMEText
 from selenium.webdriver.chrome.options import Options
 from dbmanager import DatabaseManager
