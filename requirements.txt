@@ -1,4 +1,4 @@
 selenium
 bs4
 python-dotenv
-pymongo[tls,srv]==3.6.1
+pymongo[tls,srv]
